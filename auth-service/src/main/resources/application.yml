@@ -1,0 +1,30 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: auth-service
+
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/auth_db
+
+  cloud:
+    config:
+      enabled: true
+      uri: http://localhost:8888
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+
+jwt:
+  secret: LMS_SECRET_KEY_123456789
+  expiration: 86400000   # 1 day in ms
+
+logging:
+  level:
+    org.springframework.security: INFO

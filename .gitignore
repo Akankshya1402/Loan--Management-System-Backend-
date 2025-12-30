@@ -1,0 +1,13 @@
+# IDE
+.metadata/
+.sonarlint/
+.idea/
+.vscode/
+
+# Maven
+target/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
