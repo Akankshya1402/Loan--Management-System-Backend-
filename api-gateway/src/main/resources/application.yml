@@ -21,7 +21,8 @@ spring:
               - DELETE
               - OPTIONS
             allowedHeaders:
-              - "*"
+              - Authorization
+              - Content-Type
             allowCredentials: true
 
       default-filters:

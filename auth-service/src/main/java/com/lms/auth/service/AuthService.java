@@ -8,7 +8,9 @@ import com.lms.auth.model.Role;
 import com.lms.auth.model.User;
 import com.lms.auth.repository.UserRepository;
 import com.lms.auth.util.JwtUtil;
+
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -61,5 +63,18 @@ public class AuthService {
                         .map(Enum::name)
                         .collect(Collectors.toSet())
         );
+    }
+
+    // =========================
+    // FORGOT PASSWORD
+    // =========================
+    public void forgotPassword(String username, String newPassword) {
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() ->
+                        new InvalidCredentialsException("User not found"));
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
     }
 }
