@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.lms.auth.dto.MessageResponse;
+import com.lms.auth.dto.ForgotPasswordRequest;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -34,6 +35,22 @@ public class AuthController {
 
         String token = authService.login(request);
         return ResponseEntity.ok(new AuthResponse(token));
+    }
+    // =========================
+    // FORGOT PASSWORD ✅ NEW
+    // =========================
+    @PostMapping("/forgot-password")
+    public ResponseEntity<MessageResponse> forgotPassword(
+            @Valid @RequestBody ForgotPasswordRequest request) {
+
+        authService.forgotPassword(
+                request.getUsername(),
+                request.getNewPassword()
+        );
+
+        return ResponseEntity.ok(
+                new MessageResponse("Password updated successfully")
+        );
     }
 }
 
