@@ -1,10 +1,8 @@
 package com.lms.loanapplication.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.lms.loanapplication.dto.LoanApplicationRequest;
-import com.lms.loanapplication.dto.LoanApplicationResponse;
-import com.lms.loanapplication.model.enums.ApplicationStatus;
-import com.lms.loanapplication.model.enums.LoanType;
+import com.lms.loanapplication.dto.*;
+import com.lms.loanapplication.model.enums.*;
 import com.lms.loanapplication.service.LoanApplicationService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,9 +34,6 @@ class LoanApplicationControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    // =========================
-    // CUSTOMER: APPLY
-    // =========================
     @Test
     @WithMockUser(authorities = "ROLE_CUSTOMER")
     void shouldApplyForLoan() throws Exception {
@@ -47,11 +42,10 @@ class LoanApplicationControllerTest {
         request.setLoanType(LoanType.PERSONAL);
         request.setLoanAmount(BigDecimal.valueOf(100000));
         request.setTenureMonths(12);
-        request.setMonthlyIncome(BigDecimal.valueOf(40000));
 
         LoanApplicationResponse response = new LoanApplicationResponse();
         response.setApplicationId("APP1");
-        response.setStatus(ApplicationStatus.APPLIED);
+        response.setStatus(ApplicationStatus.SUBMITTED);
         response.setAppliedAt(LocalDateTime.now());
 
         when(service.apply(any(), any())).thenReturn(response);
@@ -62,12 +56,9 @@ class LoanApplicationControllerTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.applicationId").value("APP1"))
-                .andExpect(jsonPath("$.status").value("APPLIED"));
+                .andExpect(jsonPath("$.status").value("SUBMITTED"));
     }
 
-    // =========================
-    // CUSTOMER: VIEW OWN
-    // =========================
     @Test
     @WithMockUser(authorities = "ROLE_CUSTOMER")
     void shouldReturnMyApplications() throws Exception {
@@ -80,27 +71,11 @@ class LoanApplicationControllerTest {
                 .andExpect(jsonPath("$").isArray());
     }
 
-    // =========================
-    // ADMIN: VIEW PENDING
-    // =========================
-    @Test
-    @WithMockUser(authorities = "ROLE_ADMIN")
-    void shouldReturnPendingApplications() throws Exception {
-
-        when(service.getPendingApplications())
-                .thenReturn(List.of(new LoanApplicationResponse()));
-
-        mockMvc.perform(get("/loan-applications/pending"))
-                .andExpect(status().isOk());
-    }
-
-    // =========================
-    // SECURITY
-    // =========================
     @Test
     void shouldReturn401WhenUnauthenticated() throws Exception {
 
-        mockMvc.perform(get("/loan-applications/pending"))
+        mockMvc.perform(get("/loan-applications/me"))
                 .andExpect(status().isUnauthorized());
     }
 }
+

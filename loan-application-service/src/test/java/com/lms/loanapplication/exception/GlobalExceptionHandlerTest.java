@@ -9,7 +9,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(LoanApplicationController.class)
@@ -22,15 +22,31 @@ class GlobalExceptionHandlerTest {
     private LoanApplicationService service;
 
     @Test
-    void shouldHandleRuntimeException() throws Exception {
+    void shouldHandleDomainException() throws Exception {
 
-        when(service.getPendingApplications())
-                .thenThrow(new RuntimeException("Something went wrong"));
+        when(service.apply(
+                org.mockito.ArgumentMatchers.any(),
+                org.mockito.ArgumentMatchers.any()))
+                .thenThrow(new KycNotVerifiedException());
 
-        mockMvc.perform(get("/loan-applications/pending"))
+        mockMvc.perform(post("/loan-applications"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message")
+                        .value("KYC not verified. Cannot apply for loan."));
+    }
+
+    @Test
+    void shouldHandleGenericException() throws Exception {
+
+        when(service.apply(
+                org.mockito.ArgumentMatchers.any(),
+                org.mockito.ArgumentMatchers.any()))
+                .thenThrow(new RuntimeException("Unexpected error"));
+
+        mockMvc.perform(post("/loan-applications"))
                 .andExpect(status().isInternalServerError())
                 .andExpect(jsonPath("$.message")
-                        .value("Something went wrong"));
+                        .value("Unexpected error"));
     }
 }
 
