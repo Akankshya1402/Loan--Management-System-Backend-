@@ -1,22 +1,22 @@
-package com.lms.customer.config;
+    package com.lms.customer.config;
 
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.data.mongodb.config.AbstractMongoClientConfiguration;
+    import com.mongodb.client.MongoClient;
+    import com.mongodb.client.MongoClients;
+    import org.springframework.context.annotation.Bean;
+    import org.springframework.context.annotation.Configuration;
+    import org.springframework.data.mongodb.config.AbstractMongoClientConfiguration;
 
-@Configuration
-public class MongoConfig extends AbstractMongoClientConfiguration {
+    @Configuration
+    public class MongoConfig extends AbstractMongoClientConfiguration {
 
-    @Override
-    protected String getDatabaseName() {
-        return "customer_db";
+        @Override
+        protected String getDatabaseName() {
+            return "customer_db";
+        }
+
+        @Bean
+        @Override
+        public MongoClient mongoClient() {
+            return MongoClients.create("mongodb://localhost:27017");
+        }
     }
-
-    @Bean
-    @Override
-    public MongoClient mongoClient() {
-        return MongoClients.create("mongodb://localhost:27017");
-    }
-}

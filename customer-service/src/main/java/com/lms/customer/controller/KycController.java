@@ -1,14 +1,15 @@
 package com.lms.customer.controller;
 
 import com.lms.customer.model.KycDocument;
+import com.lms.customer.service.CustomerService;
 import com.lms.customer.service.KycService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -17,6 +18,7 @@ import java.util.List;
 public class KycController {
 
     private final KycService kycService;
+    private final CustomerService customerService;
 
     // =========================
     // CUSTOMER → UPLOAD KYC DOCUMENT
@@ -25,10 +27,17 @@ public class KycController {
     @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<Void> uploadKyc(
             @RequestBody KycDocument document,
-            Principal principal) {
+            Authentication authentication) {
+
+        // 🔐 authUserId from JWT (sub)
+        String authUserId = authentication.getName();
+
+        // 🔥 Resolve internal customerId
+        String customerId =
+                customerService.getCustomerIdByAuthUserId(authUserId);
 
         // Server-controlled fields
-        document.setCustomerId(principal.getName());
+        document.setCustomerId(customerId);
 
         kycService.uploadDocument(document);
 
@@ -41,10 +50,15 @@ public class KycController {
     @GetMapping("/customers/me/kyc")
     @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<List<KycDocument>> getMyKycDocuments(
-            Principal principal) {
+            Authentication authentication) {
+
+        String authUserId = authentication.getName();
+
+        String customerId =
+                customerService.getCustomerIdByAuthUserId(authUserId);
 
         return ResponseEntity.ok(
-                kycService.getMyDocuments(principal.getName())
+                kycService.getMyDocuments(customerId)
         );
     }
 
@@ -73,5 +87,18 @@ public class KycController {
         kycService.rejectDocument(documentId, remarks);
         return ResponseEntity.ok().build();
     }
-}
+    // =========================
+// ADMIN → VIEW ALL KYC DOCUMENTS
+// =========================
+    @GetMapping("/admin/kyc")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<KycDocument>> getAllKycDocuments() {
+        return ResponseEntity.ok(kycService.getAllDocuments());
+    }
+    @GetMapping("/admin/test")
+    public String adminTest() {
+        return "ADMIN CONTROLLER WORKING";
+    }
 
+
+}

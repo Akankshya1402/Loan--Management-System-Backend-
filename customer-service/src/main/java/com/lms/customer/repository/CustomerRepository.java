@@ -3,7 +3,9 @@ package com.lms.customer.repository;
 import com.lms.customer.model.Customer;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
-public interface CustomerRepository
-        extends MongoRepository<Customer, String> {
-}
+import java.util.Optional;
 
+public interface CustomerRepository extends MongoRepository<Customer, String> {
+    Optional<Customer> findByAuthUserId(String authUserId);
+
+}

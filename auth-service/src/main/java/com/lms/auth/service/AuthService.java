@@ -8,8 +8,11 @@ import com.lms.auth.model.Role;
 import com.lms.auth.model.User;
 import com.lms.auth.repository.UserRepository;
 import com.lms.auth.util.JwtUtil;
+
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.*;
+
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -27,7 +30,7 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
 
     // =========================
-    // REGISTER (CUSTOMER ONLY)
+    // REGISTER CUSTOMER
     // =========================
     public void register(RegisterRequest request) {
 
@@ -46,7 +49,7 @@ public class AuthService {
     }
 
     // =========================
-    // LOGIN (ADMIN OR CUSTOMER)
+    // LOGIN (ADMIN + CUSTOMER)
     // =========================
     public String login(LoginRequest request) {
 
@@ -70,7 +73,7 @@ public class AuthService {
             );
         }
 
-        // 👤 CUSTOMER LOGIN (DB)
+        // 👤 CUSTOMER LOGIN
         User user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() ->
                         new InvalidCredentialsException("Invalid username or password"));
@@ -89,7 +92,7 @@ public class AuthService {
     }
 
     // =========================
-    // FORGOT PASSWORD (CUSTOMER)
+    // FORGOT PASSWORD
     // =========================
     public void forgotPassword(String username, String newPassword) {
 

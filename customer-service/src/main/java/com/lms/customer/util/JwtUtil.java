@@ -1,4 +1,5 @@
-package com.lms.auth.util;
+package com.lms.customer.util;
+
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

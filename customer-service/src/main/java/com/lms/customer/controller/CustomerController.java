@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -22,23 +23,40 @@ public class CustomerController {
     private final CustomerService service;
 
     // =========================
-    // CUSTOMER → CREATE PROFILE
+    // CREATE CUSTOMER PROFILE
     // =========================
     @PostMapping
-    @PreAuthorize("hasRole('CUSTOMER')")
+    @PreAuthorize("hasAuthority('ROLE_CUSTOMER')")
     public ResponseEntity<CustomerResponse> create(
-            @Valid @RequestBody CustomerRequest request) {
-
-        CustomerResponse response = service.create(request);
+            @Valid @RequestBody CustomerRequest request,
+            Authentication authentication
+    ) {
+        String authUserId = authentication.getName();
+        CustomerResponse response = service.create(request, authUserId);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    // =========================
+    // CUSTOMER → VIEW OWN PROFILE
+    // =========================
+    @GetMapping("/me")
+    @PreAuthorize("hasAuthority('ROLE_CUSTOMER')")
+    public ResponseEntity<CustomerResponse> getMyProfile(
+            Authentication authentication
+    ) {
+        return ResponseEntity.ok(
+                service.getMyProfile(authentication.getName())
+        );
     }
 
     // =========================
     // ADMIN → VIEW ALL CUSTOMERS
     // =========================
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Page<CustomerResponse>> getAll(Pageable pageable) {
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    public ResponseEntity<Page<CustomerResponse>> getAll(
+            Pageable pageable
+    ) {
         return ResponseEntity.ok(service.getAll(pageable));
     }
 
@@ -46,11 +64,11 @@ public class CustomerController {
     // ADMIN → VIEW CUSTOMER BY ID
     // =========================
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<CustomerResponse> getById(
-            @PathVariable String id) {
-
+            @PathVariable String id
+    ) {
         return ResponseEntity.ok(service.getById(id));
     }
-}
 
+}

@@ -40,7 +40,9 @@ class CustomerServiceTest {
         when(repository.save(any(Customer.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
-        var response = service.create(request);
+        String authUserId = "auth-user-123";
+
+        var response = service.create(request, authUserId);
 
         assertEquals("John Doe", response.getFullName());
         assertEquals(KycStatus.NOT_SUBMITTED, response.getKycStatus());
@@ -75,4 +77,3 @@ class CustomerServiceTest {
         verify(repository).save(customer);
     }
 }
-

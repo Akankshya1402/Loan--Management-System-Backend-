@@ -35,6 +35,11 @@ public class KycServiceImpl implements KycService {
                 KycStatus.PENDING
         );
     }
+    @Override
+    public List<KycDocument> getAllDocuments() {
+        return repository.findAll();
+    }
+
 
     // =========================
     // CUSTOMER: VIEW DOCUMENTS

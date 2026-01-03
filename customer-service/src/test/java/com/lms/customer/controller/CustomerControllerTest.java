@@ -17,6 +17,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.math.BigDecimal;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -38,7 +39,7 @@ class CustomerControllerTest {
     // CREATE CUSTOMER (CUSTOMER)
     // =========================
     @Test
-    @WithMockUser(authorities = "ROLE_CUSTOMER")
+    @WithMockUser(username = "auth-user-123", authorities = "ROLE_CUSTOMER")
     void shouldCreateCustomer() throws Exception {
 
         CustomerRequest request = CustomerRequest.builder()
@@ -58,7 +59,7 @@ class CustomerControllerTest {
                 .kycStatus(KycStatus.NOT_SUBMITTED)
                 .build();
 
-        when(service.create(any(CustomerRequest.class)))
+        when(service.create(any(CustomerRequest.class), anyString()))
                 .thenReturn(response);
 
         mockMvc.perform(post("/api/customers")
@@ -105,4 +106,3 @@ class CustomerControllerTest {
                 .andExpect(status().isUnauthorized());
     }
 }
-

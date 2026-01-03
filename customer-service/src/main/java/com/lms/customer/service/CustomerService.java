@@ -21,16 +21,31 @@ public class CustomerService {
     private final CustomerRepository repository;
 
     // =========================
-    // CREATE CUSTOMER
+    // CREATE CUSTOMER (JWT USER)
     // =========================
-    public CustomerResponse create(CustomerRequest request) {
+    public String getCustomerIdByAuthUserId(String authUserId) {
+        return repository.findByAuthUserId(authUserId)
+                .orElseThrow(() ->
+                        new CustomerNotFoundException("Customer not found"))
+                .getCustomerId();
+    }
+
+
+
+    public CustomerResponse create(CustomerRequest request, String authUserId) {
+
+        // Optional: prevent duplicate profile
+        repository.findByAuthUserId(authUserId).ifPresent(c -> {
+            throw new IllegalStateException("Customer profile already exists");
+        });
 
         Customer customer = Customer.builder()
+                .authUserId(authUserId)                // ✅ IMPORTANT
                 .fullName(request.getFullName())
                 .email(request.getEmail())
                 .mobile(request.getMobile())
                 .monthlyIncome(request.getMonthlyIncome())
-                .creditScore(650) // default/mock
+                .creditScore(650)
                 .existingEmiLiability(BigDecimal.ZERO)
                 .accountStatus(AccountStatus.ACTIVE)
                 .kycStatus(KycStatus.NOT_SUBMITTED)
@@ -39,6 +54,17 @@ public class CustomerService {
                 .build();
 
         return mapToResponse(repository.save(customer));
+    }
+
+    // =========================
+    // CUSTOMER → VIEW OWN PROFILE (/me)
+    // =========================
+    public CustomerResponse getMyProfile(String authUserId) {
+        Customer customer = repository.findByAuthUserId(authUserId)
+                .orElseThrow(() ->
+                        new CustomerNotFoundException("Customer profile not found"));
+
+        return mapToResponse(customer);
     }
 
     // =========================
@@ -68,7 +94,7 @@ public class CustomerService {
     }
 
     // =========================
-    // INTERNAL: EMI LIABILITY UPDATE (FROM LOAN SERVICE)
+    // INTERNAL: EMI LIABILITY UPDATE
     // =========================
     public void updateEmiLiability(String customerId, BigDecimal deltaAmount) {
 
@@ -84,10 +110,9 @@ public class CustomerService {
     }
 
     // =========================
-    // ADMIN: KYC STATUS UPDATE
+    // ADMIN OPERATIONS
     // =========================
     public void updateKycStatus(String customerId, KycStatus status) {
-
         Customer customer = repository.findById(customerId)
                 .orElseThrow(() ->
                         new CustomerNotFoundException("Customer not found"));
@@ -96,9 +121,6 @@ public class CustomerService {
         repository.save(customer);
     }
 
-    // =========================
-    // ADMIN: VERIFY CONTACT DETAILS
-    // =========================
     public void verifyEmail(String customerId) {
         Customer customer = repository.findById(customerId)
                 .orElseThrow(() ->
@@ -118,16 +140,13 @@ public class CustomerService {
     }
 
     // =========================
-    // GET ALL CUSTOMERS (ADMIN)
+    // ADMIN: READ
     // =========================
     public Page<CustomerResponse> getAll(Pageable pageable) {
         return repository.findAll(pageable)
                 .map(this::mapToResponse);
     }
 
-    // =========================
-    // GET CUSTOMER BY ID (ADMIN)
-    // =========================
     public CustomerResponse getById(String customerId) {
 
         Customer customer = repository.findById(customerId)
@@ -140,7 +159,7 @@ public class CustomerService {
     }
 
     // =========================
-    // ENTITY → DTO MAPPER
+    // ENTITY → DTO
     // =========================
     private CustomerResponse mapToResponse(Customer customer) {
 
@@ -156,5 +175,3 @@ public class CustomerService {
                 .build();
     }
 }
-
-

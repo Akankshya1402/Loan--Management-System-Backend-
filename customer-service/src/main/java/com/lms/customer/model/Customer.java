@@ -19,7 +19,7 @@ public class Customer {
 
     @Id
     private String customerId;
-
+    private String authUserId;
     @NotBlank(message = "Full name is mandatory")
     private String fullName;
 

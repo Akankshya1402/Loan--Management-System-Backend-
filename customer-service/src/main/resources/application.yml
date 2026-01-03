@@ -13,7 +13,7 @@ eureka:
     fetch-registry: true
 
 server:
-  port: 0   # ✅ random port (recommended with Eureka)
+  port: 0
 
 logging:
   level:

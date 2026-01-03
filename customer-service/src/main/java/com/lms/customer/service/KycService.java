@@ -1,28 +1,29 @@
-package com.lms.customer.service;
+    package com.lms.customer.service;
 
-import com.lms.customer.model.KycDocument;
+    import com.lms.customer.model.KycDocument;
 
-import java.util.List;
+    import java.util.List;
 
-public interface KycService {
+    public interface KycService {
 
-    // =========================
-    // CUSTOMER ACTIONS
-    // =========================
+        // =========================
+        // CUSTOMER ACTIONS
+        // =========================
 
-    // Upload a KYC document (always goes to PENDING)
-    void uploadDocument(KycDocument document);
+        // Upload a KYC document (always goes to PENDING)
+        void uploadDocument(KycDocument document);
 
-    // View own uploaded documents
-    List<KycDocument> getMyDocuments(String customerId);
+        // View own uploaded documents
+        List<KycDocument> getMyDocuments(String customerId);
 
-    // =========================
-    // ADMIN ACTIONS
-    // =========================
+        // =========================
+        // ADMIN ACTIONS
+        // =========================
 
-    // Approve a KYC document
-    void approveDocument(String documentId, String remarks);
+        // Approve a KYC document
+        void approveDocument(String documentId, String remarks);
 
-    // Reject a KYC document
-    void rejectDocument(String documentId, String remarks);
-}
+        // Reject a KYC document
+        void rejectDocument(String documentId, String remarks);
+        List<KycDocument> getAllDocuments();
+    }
