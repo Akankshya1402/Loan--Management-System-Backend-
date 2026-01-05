@@ -1,15 +1,20 @@
-package com.lms.loanapplication.controller;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.lms.loanapplication.dto.*;
-import com.lms.loanapplication.model.enums.*;
+import com.lms.loanapplication.controller.LoanApplicationController;
+import com.lms.loanapplication.dto.LoanApplicationRequest;
+import com.lms.loanapplication.dto.LoanApplicationResponse;
+import com.lms.loanapplication.model.enums.ApplicationStatus;
+import com.lms.loanapplication.model.enums.LoanType;
 import com.lms.loanapplication.service.LoanApplicationService;
+
 import org.junit.jupiter.api.Test;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+
 import org.springframework.security.test.context.support.WithMockUser;
+
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
@@ -18,9 +23,14 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(LoanApplicationController.class)
 class LoanApplicationControllerTest {
@@ -48,10 +58,12 @@ class LoanApplicationControllerTest {
         response.setStatus(ApplicationStatus.SUBMITTED);
         response.setAppliedAt(LocalDateTime.now());
 
-        when(service.apply(any(), any())).thenReturn(response);
+        when(service.apply(any(), any(), any()))
+                .thenReturn(response);
 
         mockMvc.perform(post("/loan-applications")
                         .with(csrf())
+                        .header("Authorization", "Bearer test-token")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
@@ -73,9 +85,7 @@ class LoanApplicationControllerTest {
 
     @Test
     void shouldReturn401WhenUnauthenticated() throws Exception {
-
         mockMvc.perform(get("/loan-applications/me"))
                 .andExpect(status().isUnauthorized());
     }
 }
-

@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 
 @FeignClient(
         name = "customer-service",
-        path = "/customers"
+        path = "/api/customers"
 )
 public interface CustomerClient {
 
@@ -17,7 +17,8 @@ public interface CustomerClient {
     // =========================
     @GetMapping("/{customerId}/profile")
     CustomerProfile getProfile(
-            @PathVariable("customerId") String customerId
+            @PathVariable String customerId,
+            @RequestHeader("Authorization") String token
     );
 
     // =========================
@@ -25,8 +26,13 @@ public interface CustomerClient {
     // =========================
     @PutMapping("/{customerId}/emi-liability")
     void updateEmiLiability(
-            @PathVariable("customerId") String customerId,
-            @RequestParam("emiAmount") BigDecimal emiAmount
+            @PathVariable String customerId,
+            @RequestParam BigDecimal emiAmount,
+            @RequestHeader("Authorization") String token
+    );
+    @GetMapping("/me/id")
+    String getMyCustomerId(
+            @RequestHeader("Authorization") String token
     );
 
     // =========================
@@ -34,7 +40,6 @@ public interface CustomerClient {
     // =========================
     @Data
     class CustomerProfile {
-
         private String customerId;
         private String email;
         private Integer creditScore;
@@ -42,4 +47,3 @@ public interface CustomerClient {
         private BigDecimal existingEmiLiability;
     }
 }
-

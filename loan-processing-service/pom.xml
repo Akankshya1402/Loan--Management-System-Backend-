@@ -8,12 +8,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <!-- =========================
-         SPRING BOOT PARENT
+         SPRING BOOT PARENT (COMPATIBLE)
     ========================== -->
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.9</version>
+        <version>3.4.2</version>
         <relativePath/>
     </parent>
 
@@ -34,7 +34,7 @@
     </properties>
 
     <!-- =========================
-         SPRING CLOUD BOM (REQUIRED FOR FEIGN)
+         SPRING CLOUD BOM (MATCHES BOOT 3.4.x)
     ========================== -->
     <dependencyManagement>
         <dependencies>
@@ -71,7 +71,7 @@
             <artifactId>spring-boot-starter-data-mongodb</artifactId>
         </dependency>
 
-        <!-- ===== SECURITY (RESOURCE SERVER) ===== -->
+        <!-- ===== SECURITY ===== -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
@@ -82,10 +82,16 @@
             <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
         </dependency>
 
-        <!-- ===== OPENFEIGN (CRITICAL) ===== -->
+        <!-- ===== OPENFEIGN ===== -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-openfeign</artifactId>
+        </dependency>
+
+        <!-- ===== LOAD BALANCER (REQUIRED FOR FEIGN) ===== -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-loadbalancer</artifactId>
         </dependency>
 
         <!-- ===== KAFKA ===== -->
@@ -135,6 +141,10 @@
             <artifactId>spring-security-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+        </dependency>
 
     </dependencies>
 
@@ -164,18 +174,9 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <excludes>
-                        <exclude>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                        </exclude>
-                    </excludes>
-                </configuration>
             </plugin>
 
         </plugins>
     </build>
 
 </project>
-

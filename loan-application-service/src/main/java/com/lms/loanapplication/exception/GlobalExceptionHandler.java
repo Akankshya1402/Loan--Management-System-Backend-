@@ -19,7 +19,17 @@ public class GlobalExceptionHandler {
 
         return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
+    @ExceptionHandler(DuplicateLoanTypeException.class)
+    public ResponseEntity<?> handleDuplicateLoan(
+            DuplicateLoanTypeException ex) {
 
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT) // 409
+                .body(Map.of(
+                        "message", ex.getMessage(),
+                        "timestamp", LocalDateTime.now()
+                ));
+    }
     // =========================
     // VALIDATION ERRORS
     // =========================

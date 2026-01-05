@@ -22,6 +22,9 @@ public class LoanApprovalService {
     private static final int MIN_CREDIT_SCORE = 650;
     private static final BigDecimal EMI_RATIO = BigDecimal.valueOf(0.40);
 
+    // ✅ ADMIN TOKEN (TEMPORARY – CORRECT FOR YOUR SETUP)
+    private static final String ADMIN_TOKEN =
+            "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInJvbGVzIjpbIkFETUlOIl0sImlhdCI6MTc2NzU2MTIxNSwiZXhwIjoxNzY3NTY0ODE1fQ.4XGp9OtMHxmpKvj-KFejSNdKI21DUtT5HvuHDbCgf-8";
     private final CustomerClient customerClient;
     private final LoanRepository loanRepository;
     private final EmiScheduleService emiService;
@@ -34,8 +37,12 @@ public class LoanApprovalService {
             return;
         }
 
+        // 🔐 Authenticated internal call
         CustomerClient.CustomerProfile customer =
-                customerClient.getProfile(event.getCustomerId());
+                customerClient.getProfile(
+                        event.getCustomerId(),
+                        ADMIN_TOKEN
+                );
 
         if (customer.getCreditScore() < MIN_CREDIT_SCORE) {
             reject(event, "Credit score below 650");
@@ -56,7 +63,8 @@ public class LoanApprovalService {
                 EmiCalculator.calculate(
                         event.getRequestedAmount(),
                         rate,
-                        event.getTenureMonths());
+                        event.getTenureMonths()
+                );
 
         BigDecimal maxAllowed =
                 customer.getMonthlyIncome().multiply(EMI_RATIO);
@@ -69,28 +77,33 @@ public class LoanApprovalService {
             return;
         }
 
-        Loan loan =
-                loanRepository.save(
-                        Loan.builder()
-                                .applicationId(event.getApplicationId())
-                                .customerId(event.getCustomerId())
-                                .principal(event.getRequestedAmount())
-                                .interestRate(rate)
-                                .tenureMonths(event.getTenureMonths())
-                                .emiAmount(emi)
-                                .outstandingAmount(
-                                        emi.multiply(
-                                                BigDecimal.valueOf(
-                                                        event.getTenureMonths())))
-                                .status(LoanStatus.ACTIVE)
-                                .disbursedAt(LocalDateTime.now())
-                                .build());
+        Loan loan = loanRepository.save(
+                Loan.builder()
+                        .applicationId(event.getApplicationId())
+                        .customerId(event.getCustomerId())
+                        .loanType(event.getLoanType().name()) // STRING ✅
+                        .principal(event.getRequestedAmount())
+                        .interestRate(rate)
+                        .tenureMonths(event.getTenureMonths())
+                        .emiAmount(emi)
+                        .outstandingAmount(
+                                emi.multiply(BigDecimal.valueOf(event.getTenureMonths()))
+                        )
+                        .status(LoanStatus.ACTIVE) // ✅ ENUM
+                        .disbursedAt(LocalDateTime.now())
+                        .build()
+        );
+
+
 
         emiService.generateSchedule(loan);
 
+        // 🔐 Authenticated EMI update
         customerClient.updateEmiLiability(
                 loan.getCustomerId(),
-                emi);
+                emi,
+                ADMIN_TOKEN
+        );
 
         kafkaTemplate.send(
                 KafkaTopics.LOAN_APPROVED,
@@ -101,7 +114,8 @@ public class LoanApprovalService {
                         .approvedAmount(event.getRequestedAmount())
                         .tenureMonths(event.getTenureMonths())
                         .interestRate(rate.doubleValue())
-                        .build());
+                        .build()
+        );
     }
 
     private void reject(
@@ -114,7 +128,8 @@ public class LoanApprovalService {
                         .applicationId(event.getApplicationId())
                         .customerId(event.getCustomerId())
                         .rejectionReason(reason)
-                        .build());
+                        .build()
+        );
     }
 
     private BigDecimal interestRate(LoanType type) {

@@ -22,4 +22,5 @@ public class CustomerResponse {
 
     private AccountStatus accountStatus;
     private KycStatus kycStatus;
+    private BigDecimal existingEmiLiability;
 }

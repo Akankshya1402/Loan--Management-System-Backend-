@@ -3,7 +3,7 @@ package com.lms.loanprocessing.repository;
 import com.lms.loanprocessing.model.Loan;
 import com.lms.loanprocessing.model.enums.LoanStatus;
 import org.springframework.data.mongodb.repository.MongoRepository;
-
+import java.util.*;
 public interface LoanRepository
         extends MongoRepository<Loan, String> {
 
@@ -15,4 +15,6 @@ public interface LoanRepository
             String customerId,
             LoanStatus status
     );
+    List<Loan> findByCustomerIdAndStatus(String customerId, LoanStatus status);
+
 }

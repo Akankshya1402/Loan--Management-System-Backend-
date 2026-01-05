@@ -2,8 +2,10 @@ spring:
   application:
     name: loan-processing-service
 
-  config:
-    import: optional:configserver:http://localhost:8888
+server:
+  port: 0
 
-  profiles:
-    active: dev
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/

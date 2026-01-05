@@ -43,6 +43,24 @@ spring:
           predicates:
             - Path=/api/customers/**,/api/admin/**
 
+        # 💰 LOAN APPLICATION SERVICE
+        - id: loan-application-service
+          uri: lb://loan-application-service
+          predicates:
+            - Path=/api/loans/**
+
+        # 🏦 LOAN PROCESSING SERVICE
+        - id: loan-processing-service
+          uri: lb://loan-processing-service
+          predicates:
+            - Path=/api/loan-processing/**
+
+        # 💳 PAYMENT SERVICE  ✅ ADDED
+        - id: payment-service
+          uri: lb://payment-service
+          predicates:
+            - Path=/api/payments/**
+
 eureka:
   client:
     service-url:

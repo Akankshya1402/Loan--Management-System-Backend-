@@ -11,12 +11,16 @@ import com.lms.payment.repository.PaymentRepository;
 import com.lms.payment.service.impl.PaymentServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.*;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import java.math.BigDecimal;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 class PaymentServiceImplTest {
@@ -62,7 +66,10 @@ class PaymentServiceImplTest {
         assertEquals(PaymentStatus.SUCCESS, response.getStatus());
 
         verify(loanClient).recordEmiPayment("LN1", 1);
-        verify(customerClient).reduceEmiLiability("CUST1", BigDecimal.valueOf(5000));
+        verify(customerClient).updateEmiLiability(
+                "CUST1",
+                BigDecimal.valueOf(5000)
+        );
         verify(producer).publishPaymentSuccess(any());
     }
 
@@ -79,8 +86,10 @@ class PaymentServiceImplTest {
                 "LN1", 1, PaymentStatus.SUCCESS))
                 .thenReturn(true);
 
-        assertThrows(PaymentAlreadyProcessedException.class,
-                () -> service.makeEmiPayment(request));
+        assertThrows(
+                PaymentAlreadyProcessedException.class,
+                () -> service.makeEmiPayment(request)
+        );
 
         verifyNoInteractions(loanClient, customerClient, producer);
     }
@@ -89,10 +98,12 @@ class PaymentServiceImplTest {
     void shouldFetchPaymentsByLoan() {
 
         when(repository.findByLoanId("LN1"))
-                .thenReturn(List.of(Payment.builder()
-                        .loanId("LN1")
-                        .status(PaymentStatus.SUCCESS)
-                        .build()));
+                .thenReturn(List.of(
+                        Payment.builder()
+                                .loanId("LN1")
+                                .status(PaymentStatus.SUCCESS)
+                                .build()
+                ));
 
         assertEquals(1, service.getPaymentsByLoan("LN1").size());
     }

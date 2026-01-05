@@ -19,7 +19,13 @@ public class LoanApplicationConsumer {
             containerFactory = "loanApplicationListenerFactory"
     )
     public void consume(LoanApplicationSubmittedEvent event) {
-        log.info("📥 Processing application {}", event.getApplicationId());
-        approvalService.process(event);
+        try {
+            log.info("📥 Processing application {}", event.getApplicationId());
+            approvalService.process(event);
+        } catch (Exception ex) {
+            log.error("❌ Failed processing application {}", event.getApplicationId(), ex);
+            // DO NOT rethrow
+        }
     }
+
 }

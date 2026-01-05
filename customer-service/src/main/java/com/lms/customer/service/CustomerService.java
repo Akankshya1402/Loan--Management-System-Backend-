@@ -30,23 +30,26 @@ public class CustomerService {
                 .getCustomerId();
     }
 
-
+    public Customer findByAuthUserId(String authUserId) {
+        return repository.findByAuthUserId(authUserId)
+                .orElseThrow(() ->
+                        new IllegalStateException("Customer not found"));
+    }
 
     public CustomerResponse create(CustomerRequest request, String authUserId) {
 
-        // Optional: prevent duplicate profile
         repository.findByAuthUserId(authUserId).ifPresent(c -> {
             throw new IllegalStateException("Customer profile already exists");
         });
 
         Customer customer = Customer.builder()
-                .authUserId(authUserId)                // ✅ IMPORTANT
+                .authUserId(authUserId)
                 .fullName(request.getFullName())
                 .email(request.getEmail())
                 .mobile(request.getMobile())
                 .monthlyIncome(request.getMonthlyIncome())
                 .creditScore(650)
-                .existingEmiLiability(BigDecimal.ZERO)
+                .existingEmiLiability(BigDecimal.ZERO) // ✅ SAFE DEFAULT
                 .accountStatus(AccountStatus.ACTIVE)
                 .kycStatus(KycStatus.NOT_SUBMITTED)
                 .emailVerified(false)
@@ -57,7 +60,7 @@ public class CustomerService {
     }
 
     // =========================
-    // CUSTOMER → VIEW OWN PROFILE (/me)
+    // CUSTOMER → VIEW OWN PROFILE
     // =========================
     public CustomerResponse getMyProfile(String authUserId) {
         Customer customer = repository.findByAuthUserId(authUserId)
@@ -102,10 +105,12 @@ public class CustomerService {
                 .orElseThrow(() ->
                         new CustomerNotFoundException("Customer not found"));
 
-        customer.setExistingEmiLiability(
-                customer.getExistingEmiLiability().add(deltaAmount)
-        );
+        BigDecimal current =
+                customer.getExistingEmiLiability() != null
+                        ? customer.getExistingEmiLiability()
+                        : BigDecimal.ZERO;
 
+        customer.setExistingEmiLiability(current.add(deltaAmount));
         repository.save(customer);
     }
 
@@ -159,7 +164,7 @@ public class CustomerService {
     }
 
     // =========================
-    // ENTITY → DTO
+    // ENTITY → DTO (FINAL FIX)
     // =========================
     private CustomerResponse mapToResponse(Customer customer) {
 
@@ -170,6 +175,11 @@ public class CustomerService {
                 .mobile(customer.getMobile())
                 .monthlyIncome(customer.getMonthlyIncome())
                 .creditScore(customer.getCreditScore())
+                .existingEmiLiability(
+                        customer.getExistingEmiLiability() != null
+                                ? customer.getExistingEmiLiability()
+                                : BigDecimal.ZERO
+                )
                 .accountStatus(customer.getAccountStatus())
                 .kycStatus(customer.getKycStatus())
                 .build();

@@ -18,25 +18,41 @@ public class KafkaConsumerConfig {
     @Bean
     public ConsumerFactory<String, LoanApplicationSubmittedEvent> consumerFactory() {
 
-        JsonDeserializer<LoanApplicationSubmittedEvent> deserializer =
-                new JsonDeserializer<>(LoanApplicationSubmittedEvent.class);
-        deserializer.addTrustedPackages("*");
-
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
         props.put(ConsumerConfig.GROUP_ID_CONFIG, "loan-processing-group");
-        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+
+        // 🔴 IMPORTANT
+        props.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
+        props.put(JsonDeserializer.USE_TYPE_INFO_HEADERS, false);
+        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE,
+                "com.lms.loanprocessing.event.LoanApplicationSubmittedEvent");
 
         return new DefaultKafkaConsumerFactory<>(
                 props,
                 new StringDeserializer(),
-                deserializer
+                new JsonDeserializer<>(LoanApplicationSubmittedEvent.class, false)
         );
     }
 
-    @Bean
+
+
+    // 🔹 FOR LoanApplicationSubmittedEvent
+    @Bean(name = "loanApplicationListenerFactory")
     public ConcurrentKafkaListenerContainerFactory<String, LoanApplicationSubmittedEvent>
     loanApplicationListenerFactory() {
+
+        ConcurrentKafkaListenerContainerFactory<String, LoanApplicationSubmittedEvent> factory =
+                new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(consumerFactory());
+        return factory;
+    }
+
+    // 🔹 FOR LoanApprovedEvent (can reuse same consumerFactory if JSON compatible)
+    @Bean(name = "loanApprovedKafkaListenerFactory")
+    public ConcurrentKafkaListenerContainerFactory<String, LoanApplicationSubmittedEvent>
+    loanApprovedKafkaListenerFactory() {
 
         ConcurrentKafkaListenerContainerFactory<String, LoanApplicationSubmittedEvent> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();

@@ -1,22 +1,29 @@
-package com.lms.loanapplication.service;
 
 import com.lms.loanapplication.client.CustomerClient;
-import com.lms.loanapplication.dto.*;
+import com.lms.loanapplication.dto.CustomerProfileResponse;
+import com.lms.loanapplication.dto.LoanApplicationRequest;
+import com.lms.loanapplication.dto.LoanApplicationResponse;
 import com.lms.loanapplication.kafka.LoanApplicationEventProducer;
-import com.lms.loanapplication.model.*;
-import com.lms.loanapplication.model.enums.*;
+import com.lms.loanapplication.model.LoanApplication;
+import com.lms.loanapplication.model.enums.ApplicationStatus;
+import com.lms.loanapplication.model.enums.LoanType;
 import com.lms.loanapplication.repository.LoanApplicationRepository;
 import com.lms.loanapplication.service.impl.LoanApplicationServiceImpl;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.*;
+
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class LoanApplicationServiceTest {
@@ -41,6 +48,19 @@ class LoanApplicationServiceTest {
         request.setLoanAmount(BigDecimal.valueOf(200000));
         request.setTenureMonths(24);
 
+        CustomerProfileResponse customer = new CustomerProfileResponse();
+        customer.setCustomerId("CUST1");
+        customer.setKycStatus("VERIFIED");
+        customer.setAccountStatus("ACTIVE");
+        customer.setMonthlyIncome(BigDecimal.valueOf(50000));
+        customer.setCreditScore(750);
+
+        when(customerClient.getMyProfile(any()))
+                .thenReturn(customer);
+
+        when(repository.existsByCustomerIdAndLoanType(any(), any()))
+                .thenReturn(false);
+
         LoanApplication saved = LoanApplication.builder()
                 .applicationId("APP1")
                 .customerId("CUST1")
@@ -50,22 +70,18 @@ class LoanApplicationServiceTest {
                 .status(ApplicationStatus.SUBMITTED)
                 .build();
 
-        doNothing().when(customerClient)
-                .validateCustomerForLoan("CUST1");
-
-        when(repository.existsByCustomerIdAndLoanType(
-                any(), any())).thenReturn(false);
-
-        when(repository.save(any())).thenReturn(saved);
+        when(repository.save(any()))
+                .thenReturn(saved);
 
         LoanApplicationResponse response =
-                service.apply("CUST1", request);
+                service.apply("CUST1", request, "Bearer test-token");
 
         assertEquals("APP1", response.getApplicationId());
         assertEquals(ApplicationStatus.SUBMITTED, response.getStatus());
 
-        verify(eventProducer).publishSubmitted(any());
+        verify(customerClient).getMyProfile(any());
         verify(repository).save(any());
+        verify(eventProducer).publishSubmitted(any());
     }
 
     @Test
@@ -86,4 +102,3 @@ class LoanApplicationServiceTest {
         verify(repository).findByCustomerId("C1");
     }
 }
-

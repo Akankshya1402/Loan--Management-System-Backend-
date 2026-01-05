@@ -13,6 +13,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 
 import java.math.BigDecimal;
 
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(org.mockito.junit.jupiter.MockitoExtension.class)
@@ -52,11 +53,17 @@ class LoanApprovalServiceTest {
         profile.setExistingEmiLiability(BigDecimal.ZERO);
         profile.setEmail("test@mail.com");
 
-        when(customerClient.getProfile("C1")).thenReturn(profile);
-        when(loanRepository.existsByApplicationId("APP1")).thenReturn(false);
+        when(customerClient.getProfile(eq("C1"), anyString()))
+                .thenReturn(profile);
+
+        when(loanRepository.existsByApplicationId("APP1"))
+                .thenReturn(false);
+
         when(loanRepository.existsByCustomerIdAndStatus("C1", LoanStatus.ACTIVE))
                 .thenReturn(false);
-        when(loanRepository.save(any())).thenAnswer(i -> i.getArgument(0));
+
+        when(loanRepository.save(any()))
+                .thenAnswer(i -> i.getArgument(0));
 
         service.process(event);
 
@@ -81,8 +88,11 @@ class LoanApprovalServiceTest {
                 new CustomerClient.CustomerProfile();
         profile.setCreditScore(600);
 
-        when(customerClient.getProfile("C2")).thenReturn(profile);
-        when(loanRepository.existsByApplicationId("APP2")).thenReturn(false);
+        when(customerClient.getProfile(eq("C2"), anyString()))
+                .thenReturn(profile);
+
+        when(loanRepository.existsByApplicationId("APP2"))
+                .thenReturn(false);
 
         service.process(event);
 

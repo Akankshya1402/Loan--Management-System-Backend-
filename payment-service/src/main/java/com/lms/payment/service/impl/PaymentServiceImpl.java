@@ -18,7 +18,9 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PaymentServiceImpl implements PaymentService {
@@ -31,14 +33,20 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     public PaymentResponse makeEmiPayment(PaymentRequest request) {
 
+        log.info("➡️ Entered makeEmiPayment");
+
+        log.info("Request = {}", request);
+
         if (repository.existsByLoanIdAndEmiNumberAndStatus(
                 request.getLoanId(),
                 request.getEmiNumber(),
                 PaymentStatus.SUCCESS)) {
 
-            throw new PaymentAlreadyProcessedException(
-                    "EMI already paid for this loan");
+            log.warn("❌ EMI already paid");
+            throw new PaymentAlreadyProcessedException("EMI already paid");
         }
+
+        log.info("✅ EMI not paid yet");
 
         Payment payment = Payment.builder()
                 .loanId(request.getLoanId())
@@ -50,51 +58,28 @@ public class PaymentServiceImpl implements PaymentService {
                 .status(PaymentStatus.PENDING)
                 .build();
 
+        log.info("🟡 Saving payment (PENDING)");
         payment = repository.save(payment);
 
-        try {
-            // Simulate gateway success
-            payment.setStatus(PaymentStatus.SUCCESS);
-            repository.save(payment);
+        log.info("🟢 Payment saved with id {}", payment.getPaymentId());
 
-            loanClient.recordEmiPayment(
-                    request.getLoanId(),
-                    request.getEmiNumber()
-            );
+        payment.setStatus(PaymentStatus.SUCCESS);
+        repository.save(payment);
 
-            customerClient.reduceEmiLiability(
-                    request.getCustomerId(),
-                    request.getAmount()
-            );
+        log.info("🟢 Payment marked SUCCESS");
 
-            producer.publishPaymentSuccess(
-                    PaymentSuccessEvent.builder()
-                            .paymentId(payment.getPaymentId())
-                            .customerId(payment.getCustomerId())
-                            .loanId(payment.getLoanId())
-                            .emiNumber(payment.getEmiNumber())
-                            .amount(payment.getAmount())
-                            .build()
-            );
+        loanClient.recordEmiPayment(payment.getLoanId(), payment.getEmiNumber());
+        log.info("🟢 Loan processing updated");
 
-        } catch (Exception ex) {
-
-            payment.setStatus(PaymentStatus.FAILED);
-            repository.save(payment);
-
-            producer.publishPaymentFailure(
-                    PaymentFailedEvent.builder()
-                            .customerId(request.getCustomerId())
-                            .loanId(request.getLoanId())
-                            .emiNumber(request.getEmiNumber())
-                            .amount(request.getAmount())
-                            .reason(ex.getMessage())
-                            .build()
-            );
-        }
+        customerClient.updateEmiLiability(
+                payment.getCustomerId(),
+                payment.getAmount().negate()
+        );
+        log.info("🟢 Customer liability updated");
 
         return map(payment);
     }
+
 
     @Override
     public List<PaymentResponse> getPaymentsByLoan(String loanId) {

@@ -95,10 +95,5 @@ public class KycController {
     public ResponseEntity<List<KycDocument>> getAllKycDocuments() {
         return ResponseEntity.ok(kycService.getAllDocuments());
     }
-    @GetMapping("/admin/test")
-    public String adminTest() {
-        return "ADMIN CONTROLLER WORKING";
-    }
-
 
 }

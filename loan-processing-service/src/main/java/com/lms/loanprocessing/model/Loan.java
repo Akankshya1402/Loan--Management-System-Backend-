@@ -18,6 +18,7 @@ public class Loan {
     @Id
     private String loanId;
 
+    private String loanType; // HOME, PERSONAL, VEHICLE (STRING ✅)
     private String applicationId;
     private String customerId;
 
@@ -28,7 +29,8 @@ public class Loan {
     private BigDecimal emiAmount;
     private BigDecimal outstandingAmount;
 
-    private LoanStatus status;
+    private LoanStatus status;   // ✅ ENUM ONLY
+
     private LocalDateTime disbursedAt;
     private LocalDateTime closedAt;
 }
