@@ -1,0 +1,289 @@
+🔧 Jenkins Setup Guide – Loan Management System Backend
+
+This guide explains how to install, configure, and run Jenkins CI/CD for the Loan Management System backend, covering tools, pipeline creation, execution, and troubleshooting.
+
+1️⃣ Jenkins Installation
+✅ Windows (Recommended for College / Local Setup)
+
+Download Jenkins LTS (.msi) from official site
+
+Run installer → accept defaults
+
+Jenkins runs as a Windows service
+
+Access Jenkins UI:
+
+http://localhost:8080
+
+✅ Linux (Ubuntu)
+sudo apt update
+sudo apt install jenkins -y
+sudo systemctl start jenkins
+sudo systemctl enable jenkins
+sudo systemctl status jenkins
+
+2️⃣ Initial Jenkins Configuration
+🔑 Unlock Jenkins
+
+Find initial admin password:
+
+Windows
+
+C:\Program Files\Jenkins\secrets\initialAdminPassword
+
+
+Linux
+
+sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+
+
+Paste password in Jenkins UI.
+
+🔌 Install Required Plugins
+
+From Manage Jenkins → Plugins → Available, install:
+
+Git
+
+Pipeline
+
+Maven Integration
+
+Credentials Binding
+
+Workspace Cleanup
+
+SonarQube Scanner (optional, if used later)
+
+Docker Pipeline (optional)
+
+Restart Jenkins after installation.
+
+3️⃣ Tool Configuration (Mandatory)
+
+Go to:
+
+Manage Jenkins → Global Tool Configuration
+
+☕ Configure JDK
+
+Name: JDK17
+
+JAVA_HOME:
+Example:
+
+C:\Program Files\Java\jdk-17
+
+
+Uncheck “Install automatically”
+
+📦 Configure Maven
+
+Name: Maven
+
+Version: 3.9+
+
+Check “Install automatically”
+
+🧪 Verify Tools
+
+From Jenkins Dashboard → Manage Jenkins → System Information
+
+Confirm:
+
+JAVA_HOME detected
+
+Maven detected
+
+4️⃣ Create Jenkins Pipeline Job
+
+Jenkins Dashboard → New Item
+
+Name:
+
+Loan-Management-System-CI
+
+
+Select Pipeline
+
+Click OK
+
+5️⃣ Pipeline Configuration (GitHub Integration)
+🔗 Source Code Management
+
+Definition: Pipeline script from SCM
+
+SCM: Git
+
+Repository URL:
+
+https://github.com/Akankshya1402/Loan--Management-System-Backend-.git
+
+
+Branch:
+
+*/main
+
+
+Script Path:
+
+Jenkinsfile
+
+
+Save configuration.
+
+6️⃣ Jenkinsfile (Complete Working Pipeline)
+
+Create a file named Jenkinsfile in the root of your repository:
+
+pipeline {
+    agent any
+
+    tools {
+        maven 'Maven'
+        jdk 'JDK17'
+    }
+
+    stages {
+
+        stage('Checkout Code') {
+            steps {
+                git branch: 'main',
+                    url: 'https://github.com/Akankshya1402/Loan--Management-System-Backend-.git'
+            }
+        }
+
+        stage('Clean') {
+            steps {
+                sh 'mvn clean'
+            }
+        }
+
+        stage('Compile') {
+            steps {
+                sh 'mvn compile'
+            }
+        }
+
+        stage('Unit Tests') {
+            steps {
+                sh 'mvn test'
+            }
+        }
+
+        stage('Package') {
+            steps {
+                sh 'mvn package -DskipTests'
+            }
+        }
+    }
+
+    post {
+        success {
+            echo '✅ Jenkins Build Successful'
+        }
+        failure {
+            echo '❌ Jenkins Build Failed'
+        }
+    }
+}
+
+
+✔ Works for multi-module microservices
+✔ No Docker required
+✔ No Sonar required
+✔ Stable for demos & evaluation
+
+7️⃣ Trigger Jenkins Build
+▶ Manual Trigger
+
+Jenkins Dashboard → Job → Build Now
+
+📜 View Logs
+
+Job → Console Output
+
+8️⃣ Jenkins Build Flow (What Happens Internally)
+
+Jenkins pulls code from GitHub
+
+Maven cleans workspace
+
+All microservices are compiled
+
+Unit tests are executed
+
+JAR artifacts are generated
+
+Build status is reported
+
+9️⃣ Jenkins + Docker (Optional Advanced Setup)
+📦 Build Docker Images
+
+Add stage in Jenkinsfile:
+
+stage('Docker Build') {
+    steps {
+        sh 'docker-compose build'
+    }
+}
+
+🚀 Run Containers
+stage('Docker Deploy') {
+    steps {
+        sh 'docker-compose up -d'
+    }
+}
+
+🔐 Docker Permission Fix (Linux)
+sudo usermod -aG docker jenkins
+sudo systemctl restart jenkins
+
+🔟 Jenkins Credentials Setup (If Needed)
+
+Go to:
+
+Manage Jenkins → Credentials → Global
+
+
+Add:
+
+GitHub credentials (username/token)
+
+DockerHub credentials (if pushing images)
+
+Sonar token (optional)
+
+1️⃣1️⃣ Jenkins Health & Maintenance
+Restart Jenkins
+sudo systemctl restart jenkins
+
+Jenkins Logs
+journalctl -u jenkins
+
+Workspace Cleanup
+
+Job → Workspace → Delete Workspace
+
+1️⃣2️⃣ Common Jenkins Errors & Fixes
+❌ Maven Not Found
+
+✔ Fix: Configure Maven in Global Tool Configuration
+
+❌ JAVA_HOME Invalid
+
+✔ Fix: Set correct JDK path (Java 17)
+
+❌ Git Authentication Failed
+
+✔ Fix: Add GitHub credentials in Jenkins
+
+❌ Permission Denied (Docker)
+
+✔ Fix:
+
+sudo usermod -aG docker jenkins
+
+
+
+No one can say “CI/CD is missing”
