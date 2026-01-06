@@ -34,6 +34,17 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
+        <!-- Spring Boot Test (JUnit, MockMvc, Mockito) -->
+
+        <!-- Spring Security Test (WithMockUser, SecurityContext) -->
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- MongoDB (for @DataMongoTest) -->
+
 
         <!-- MongoDB -->
         <dependency>

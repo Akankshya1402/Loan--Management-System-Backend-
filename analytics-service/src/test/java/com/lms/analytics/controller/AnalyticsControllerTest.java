@@ -56,5 +56,3 @@ class AnalyticsControllerTest {
                 .andExpect(status().isUnauthorized());
     }
 }
-
-}

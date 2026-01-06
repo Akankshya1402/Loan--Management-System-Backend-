@@ -15,8 +15,10 @@ public class NotificationController {
 
     @GetMapping("/{id}")
     public NotificationResponse getById(@PathVariable String id) {
+
         var notification = repository.findById(id)
-                .orElseThrow(() -> new NotificationNotFoundException("Notification not found"));
+                .orElseThrow(() ->
+                        new NotificationNotFoundException("Notification not found"));
 
         return NotificationResponse.builder()
                 .id(notification.getId())
@@ -27,4 +29,3 @@ public class NotificationController {
                 .build();
     }
 }
-

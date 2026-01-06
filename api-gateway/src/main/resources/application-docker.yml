@@ -1,0 +1,67 @@
+server:
+  port: 9090
+
+spring:
+  application:
+    name: api-gateway
+
+  cloud:
+    gateway:
+
+      globalcors:
+        add-to-simple-url-handler-mapping: true
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins:
+              - http://localhost:4200
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders:
+              - Authorization
+              - Content-Type
+            allowCredentials: true
+
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials
+        - AddResponseHeader=Access-Control-Allow-Origin, http://localhost:4200
+        - AddResponseHeader=Access-Control-Allow-Credentials, true
+
+      routes:
+        # 🔐 AUTH SERVICE
+        - id: auth-service
+          uri: lb://auth-service
+          predicates:
+            - Path=/api/auth/**
+
+        # 👤 CUSTOMER SERVICE
+        - id: customer-service
+          uri: lb://customer-service
+          predicates:
+            - Path=/api/customers/**,/api/admin/**
+
+        # 💰 LOAN APPLICATION SERVICE
+        - id: loan-application-service
+          uri: lb://loan-application-service
+          predicates:
+            - Path=/api/loans/**
+
+        # 🏦 LOAN PROCESSING SERVICE
+        - id: loan-processing-service
+          uri: lb://loan-processing-service
+          predicates:
+            - Path=/api/loan-processing/**
+
+        # 💳 PAYMENT SERVICE
+        - id: payment-service
+          uri: lb://payment-service
+          predicates:
+            - Path=/api/payments/**
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-server:8761/eureka

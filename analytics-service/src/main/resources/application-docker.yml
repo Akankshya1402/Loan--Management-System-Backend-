@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: analytics-service
+  data:
+    mongodb:
+      uri: mongodb://mongo:27017/analytics_db
+  config:
+    import: optional:configserver:http://config-server:8888
+
+server:
+  port: 0   # let Eureka assign
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-server:8761/eureka
+    register-with-eureka: true
+    fetch-registry: true

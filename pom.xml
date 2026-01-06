@@ -7,20 +7,30 @@
 
     <modelVersion>4.0.0</modelVersion>
 
+    <!-- ===================== -->
+    <!-- PROJECT COORDINATES -->
+    <!-- ===================== -->
     <groupId>com.lms</groupId>
     <artifactId>loan-management-system</artifactId>
     <version>1.0.0</version>
     <packaging>pom</packaging>
 
+    <!-- ===================== -->
+    <!-- GLOBAL PROPERTIES -->
+    <!-- ===================== -->
     <properties>
         <java.version>17</java.version>
         <spring.boot.version>3.2.5</spring.boot.version>
         <spring.cloud.version>2023.0.1</spring.cloud.version>
     </properties>
 
+    <!-- ===================== -->
+    <!-- DEPENDENCY MANAGEMENT -->
+    <!-- ===================== -->
     <dependencyManagement>
         <dependencies>
 
+            <!-- Spring Boot BOM -->
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
@@ -29,6 +39,7 @@
                 <scope>import</scope>
             </dependency>
 
+            <!-- Spring Cloud BOM -->
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-dependencies</artifactId>
@@ -40,9 +51,23 @@
         </dependencies>
     </dependencyManagement>
 
+    <!-- ===================== -->
+    <!-- MODULES (ALL SERVICES) -->
+    <!-- ===================== -->
     <modules>
+        <!-- INFRA -->
         <module>config-server</module>
         <module>eureka-server</module>
+        <module>api-gateway</module>
+
+        <!-- CORE MICROSERVICES -->
+        <module>auth-service</module>
+        <module>customer-service</module>
+        <module>loan-application-service</module>
+        <module>loan-processing-service</module>
+        <module>payment-service</module>
+        <module>notification-service</module>
+        <module>analytics-service</module>
     </modules>
 
 </project>

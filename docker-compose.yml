@@ -1,26 +1,147 @@
-version: "3.8"
+networks:
+  lms-net:
+    driver: bridge
 
 services:
+
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
-    container_name: zookeeper
     ports:
       - "2181:2181"
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - lms-net
 
   kafka:
     image: confluentinc/cp-kafka:7.5.0
-    container_name: kafka
-    depends_on:
-      - zookeeper
     ports:
       - "9092:9092"
+    depends_on:
+      - zookeeper
     environment:
-      KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
-      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    networks:
+      - lms-net
+
+  mongo:
+    image: mongo:6.0
+    ports:
+      - "27017:27017"
+    networks:
+      - lms-net
+
+  eureka-server:
+    build: ./eureka-server
+    ports:
+      - "8761:8761"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    networks:
+      - lms-net
+
+  config-server:
+    build: ./config-server
+    ports:
+      - "8888:8888"
+    depends_on:
+      - eureka-server
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    networks:
+      - lms-net
+
+  api-gateway:
+    build: ./api-gateway
+    ports:
+      - "9090:9090"
+    depends_on:
+      - config-server
+      - eureka-server
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    networks:
+      - lms-net
+
+  auth-service:
+    build: ./auth-service
+    depends_on:
+      - config-server
+      - eureka-server
+      - mongo
+      - kafka
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    networks:
+      - lms-net
+
+  customer-service:
+    build: ./customer-service
+    depends_on:
+      - config-server
+      - eureka-server
+      - mongo
+      - kafka
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    networks:
+      - lms-net
+
+  loan-application-service:
+    build: ./loan-application-service
+    depends_on:
+      - config-server
+      - eureka-server
+      - kafka
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    networks:
+      - lms-net
+
+  loan-processing-service:
+    build: ./loan-processing-service
+    depends_on:
+      - config-server
+      - eureka-server
+      - kafka
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    networks:
+      - lms-net
+
+  payment-service:
+    build: ./payment-service
+    depends_on:
+      - config-server
+      - eureka-server
+      - kafka
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    networks:
+      - lms-net
+
+  notification-service:
+    build: ./notification-service
+    depends_on:
+      - config-server
+      - eureka-server
+      - kafka
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    networks:
+      - lms-net
+
+  analytics-service:
+    build: ./analytics-service
+    depends_on:
+      - config-server
+      - eureka-server
+      - mongo
+      - kafka
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    networks:
+      - lms-net

@@ -19,7 +19,7 @@ public class NotificationEventConsumer {
             KafkaTopics.EMI_DUE,
             KafkaTopics.LOAN_CLOSED
         },
-        groupId = "notification-group"
+        groupId = "notification-group", containerFactory = "kafkaListenerContainerFactory"
     )
     public void consume(NotificationEvent event) {
         service.send(event);
