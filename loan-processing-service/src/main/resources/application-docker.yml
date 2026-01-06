@@ -3,7 +3,12 @@ spring:
     name: loan-processing-service
 
   config:
-    import: optional:configserver:http://config-server:8888
+    import: optional:configserver:http://config-server:8080
+
+  kafka:
+    bootstrap-servers: kafka:9092
+    consumer:
+      group-id: loan-processing-group
 
 server:
   port: 0
@@ -11,6 +16,6 @@ server:
 eureka:
   client:
     service-url:
-      defaultZone: http://eureka-server:8761/eureka
+      defaultZone: http://eureka-server:8761/eureka/
     register-with-eureka: true
     fetch-registry: true

@@ -1,18 +1,23 @@
 spring:
   application:
     name: analytics-service
+
   data:
     mongodb:
       uri: mongodb://mongo:27017/analytics_db
+
   config:
-    import: optional:configserver:http://config-server:8888
+    import: optional:configserver:http://config-server:8080
+
+  kafka:
+    bootstrap-servers: kafka:9092
 
 server:
-  port: 0   # let Eureka assign
+  port: 0
 
 eureka:
   client:
     service-url:
-      defaultZone: http://eureka-server:8761/eureka
+      defaultZone: http://eureka-server:8761/eureka/
     register-with-eureka: true
     fetch-registry: true
