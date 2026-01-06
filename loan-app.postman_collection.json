@@ -1,0 +1,1005 @@
+{
+	"info": {
+		"_postman_id": "ceb387b4-b2e2-4c4d-9b81-7a4666e65ce5",
+		"name": "loan-app",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "42438526"
+	},
+	"item": [
+		{
+			"name": "register new user",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"User registered successfully message\", function () {\r",
+							"    const json = pm.response.json();\r",
+							"    pm.expect(json.message).to.eql(\"User registered successfully\");\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"email\":\"Akankshya@gmail.com\",\r\n  \"username\": \"Akankshya\",\r\n  \"password\": \"password123\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9090/api/auth/register",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9090",
+					"path": [
+						"api",
+						"auth",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "login user",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// 1️⃣ Status code check\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"// 2️⃣ Token exists in response\r",
+							"pm.test(\"JWT token is present\", function () {\r",
+							"    const json = pm.response.json();\r",
+							"    pm.expect(json).to.have.property(\"token\");\r",
+							"    pm.expect(json.token).to.be.a(\"string\");\r",
+							"    pm.expect(json.token.length).to.be.greaterThan(20);\r",
+							"});\r",
+							"\r",
+							"// 3️⃣ Save token to environment for next requests\r",
+							"const json = pm.response.json();\r",
+							"pm.environment.set(\"token\", json.token);\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"username\": \"Akankshya\",\r\n  \"password\": \"Password@123\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9090/api/auth/login",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9090",
+					"path": [
+						"api",
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "change password",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// 1️⃣ Status code check\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"// 2️⃣ Success message validation\r",
+							"pm.test(\"Password change successful message\", function () {\r",
+							"    const json = pm.response.json();\r",
+							"    pm.expect(json).to.have.property(\"message\");\r",
+							"    pm.expect(json.message.toLowerCase()).to.include(\"password\");\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"username\": \"Akankshya\",\r\n  \"newPassword\": \"Password@123\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9090/api/auth/forgot-password",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9090",
+					"path": [
+						"api",
+						"auth",
+						"forgot-password"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "create profile",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// 1️⃣ Status code check\r",
+							"pm.test(\"Status code is 201 or 200\", function () {\r",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r",
+							"});\r",
+							"\r",
+							"// 2️⃣ Response is JSON\r",
+							"pm.test(\"Response is JSON\", function () {\r",
+							"    pm.response.to.be.json;\r",
+							"});\r",
+							"\r",
+							"// 3️⃣ Profile created successfully\r",
+							"pm.test(\"Customer profile created\", function () {\r",
+							"    const json = pm.response.json();\r",
+							"    pm.expect(json).to.be.an(\"object\");\r",
+							"});\r",
+							"\r",
+							"// 4️⃣ Save customerId for next APIs (if present)\r",
+							"const json = pm.response.json();\r",
+							"\r",
+							"if (json.customerId) {\r",
+							"    pm.environment.set(\"customerId\", json.customerId);\r",
+							"}\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJBa2Fua3NoeWEiLCJyb2xlcyI6WyJDVVNUT01FUiJdLCJpYXQiOjE3Njc2OTI5NzksImV4cCI6MTc2NzY5NjU3OX0.opvS1ecNWtNJn8i_1M28-XxphiBOHT-P0jGI9Sta3vg",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"fullName\": \"Akankshya Panda\",\r\n  \"email\": \"akankshya@gmail.com\",\r\n  \"mobile\": \"9999999999\",\r\n  \"monthlyIncome\": 800000\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9090/api/customers",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9090",
+					"path": [
+						"api",
+						"customers"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "view profile",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// 1️⃣ Status code check\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"// 2️⃣ Response is JSON\r",
+							"pm.test(\"Response is JSON\", function () {\r",
+							"    pm.response.to.be.json;\r",
+							"});\r",
+							"\r",
+							"// 3️⃣ Profile object exists\r",
+							"pm.test(\"Customer profile data is present\", function () {\r",
+							"    const json = pm.response.json();\r",
+							"    pm.expect(json).to.be.an(\"object\");\r",
+							"});\r",
+							"\r",
+							"// 4️⃣ Required fields exist\r",
+							"pm.test(\"Profile contains required fields\", function () {\r",
+							"    const json = pm.response.json();\r",
+							"    pm.expect(json).to.have.property(\"fullName\");\r",
+							"    pm.expect(json).to.have.property(\"email\");\r",
+							"    pm.expect(json).to.have.property(\"mobile\");\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJBa2Fua3NoeWEiLCJyb2xlcyI6WyJDVVNUT01FUiJdLCJpYXQiOjE3Njc2OTI5NzksImV4cCI6MTc2NzY5NjU3OX0.opvS1ecNWtNJn8i_1M28-XxphiBOHT-P0jGI9Sta3vg",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:9090/api/customers/me",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9090",
+					"path": [
+						"api",
+						"customers",
+						"me"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "upload kyc",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// 1️⃣ Status code check (201 Created)\r",
+							"pm.test(\"Status code is 201\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"\r",
+							"// 2️⃣ KYC upload success\r",
+							"pm.test(\"KYC uploaded successfully\", function () {\r",
+							"    // Some APIs return empty body on 201\r",
+							"    pm.expect(pm.response.code).to.eql(201);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJBa2Fua3NoeWEiLCJyb2xlcyI6WyJDVVNUT01FUiJdLCJpYXQiOjE3Njc2OTI5NzksImV4cCI6MTc2NzY5NjU3OX0.opvS1ecNWtNJn8i_1M28-XxphiBOHT-P0jGI9Sta3vg",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"type\": \"AADHAAR\",\r\n  \"documentNumber\": \"123456789\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9090/api/customers/me/kyc",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9090",
+					"path": [
+						"api",
+						"customers",
+						"me",
+						"kyc"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get kyc",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// 1️⃣ Status code check\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"// 2️⃣ Response is JSON\r",
+							"pm.test(\"Response is JSON\", function () {\r",
+							"    pm.response.to.be.json;\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJBa2Fua3NoeWEiLCJyb2xlcyI6WyJDVVNUT01FUiJdLCJpYXQiOjE3Njc2OTI5NzksImV4cCI6MTc2NzY5NjU3OX0.opvS1ecNWtNJn8i_1M28-XxphiBOHT-P0jGI9Sta3vg",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:9090/api/customers/me/kyc",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9090",
+					"path": [
+						"api",
+						"customers",
+						"me",
+						"kyc"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "see kyc requests as admin",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// 1️⃣ Status code check\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"// 2️⃣ Response is JSON array\r",
+							"pm.test(\"Response is an array\", function () {\r",
+							"    const json = pm.response.json();\r",
+							"    pm.expect(json).to.be.an(\"array\");\r",
+							"});\r",
+							"\r",
+							"// 3️⃣ At least one KYC request exists\r",
+							"pm.test(\"KYC requests list is not empty\", function () {\r",
+							"    const json = pm.response.json();\r",
+							"    pm.expect(json.length).to.be.greaterThan(0);\r",
+							"});\r",
+							"\r",
+							"// 4️⃣ Validate structure of first KYC record\r",
+							"pm.test(\"KYC record contains required fields\", function () {\r",
+							"    const kyc = pm.response.json()[0];\r",
+							"    pm.expect(kyc).to.have.property(\"id\");\r",
+							"    pm.expect(kyc).to.have.property(\"customerId\");\r",
+							"    pm.expect(kyc).to.have.property(\"type\");\r",
+							"    pm.expect(kyc).to.have.property(\"status\");\r",
+							"    pm.expect(kyc).to.have.property(\"documentNumber\");\r",
+							"});\r",
+							"const kycList = pm.response.json();\r",
+							"if (kycList.length > 0) {\r",
+							"    pm.environment.set(\"kycId\", kycList[0].id);\r",
+							"}\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInJvbGVzIjpbIkFETUlOIl0sImlhdCI6MTc2NzU2MTIxNSwiZXhwIjoxNzY3NTY0ODE1fQ.4XGp9OtMHxmpKvj-KFejSNdKI21DUtT5HvuHDbCgf-8",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:9090/api/admin/kyc",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9090",
+					"path": [
+						"api",
+						"admin",
+						"kyc"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "approve kyc document",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// 1️⃣ Status code check\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInJvbGVzIjpbIkFETUlOIl0sImlhdCI6MTc2NzY5NTQ5NCwiZXhwIjoxNzY3Njk5MDk0fQ.rp_x2400UzKbojl1GT0sk1qMW1qYc61_zVfdYVaX9Wc",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:9090/api/admin/kyc/695ce4d93b25613e7c1bdd62/approve",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9090",
+					"path": [
+						"api",
+						"admin",
+						"kyc",
+						"695ce4d93b25613e7c1bdd62",
+						"approve"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "apply for loan",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// 1️⃣ Status code check (loan created)\r",
+							"pm.test(\"Status code is 201 or 200\", function () {\r",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r",
+							"});\r",
+							"\r",
+							"// 2️⃣ Response is JSON\r",
+							"pm.test(\"Response is JSON\", function () {\r",
+							"    pm.response.to.be.json;\r",
+							"});\r",
+							"\r",
+							"// 3️⃣ Loan object exists\r",
+							"pm.test(\"Loan application created\", function () {\r",
+							"    const json = pm.response.json();\r",
+							"    pm.expect(json).to.be.an(\"object\");\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJBa2Fua3NoeWEiLCJyb2xlcyI6WyJDVVNUT01FUiJdLCJpYXQiOjE3Njc2OTcyNTYsImV4cCI6MTc2NzcwMDg1Nn0.aakyzxJDt7EsDcWLVBkKNddPqxroYVUFMrbN_mHJTDs",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"loanType\": \"EDUCATION\",\r\n  \"loanAmount\": 25000,\r\n  \"tenureMonths\": 12\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9090/api/loans",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9090",
+					"path": [
+						"api",
+						"loans"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get my loan applications",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// 1️⃣ Status code check\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"// 2️⃣ Response is JSON\r",
+							"pm.test(\"Response is JSON\", function () {\r",
+							"    pm.response.to.be.json;\r",
+							"});\r",
+							"\r",
+							"// Parse response\r",
+							"const response = pm.response.json();\r",
+							"\r",
+							"// 3️⃣ Response is an array\r",
+							"pm.test(\"Response is an array\", function () {\r",
+							"    pm.expect(response).to.be.an(\"array\");\r",
+							"});\r",
+							"\r",
+							"// 4️⃣ Array is not empty\r",
+							"pm.test(\"At least one loan application exists\", function () {\r",
+							"    pm.expect(response.length).to.be.greaterThan(0);\r",
+							"});\r",
+							"\r",
+							"// 5️⃣ Validate structure of each loan\r",
+							"pm.test(\"Each loan has required fields\", function () {\r",
+							"    response.forEach(loan => {\r",
+							"        pm.expect(loan).to.have.property(\"applicationId\");\r",
+							"        pm.expect(loan).to.have.property(\"customerId\");\r",
+							"        pm.expect(loan).to.have.property(\"loanType\");\r",
+							"        pm.expect(loan).to.have.property(\"loanAmount\");\r",
+							"        pm.expect(loan).to.have.property(\"tenureMonths\");\r",
+							"        pm.expect(loan).to.have.property(\"status\");\r",
+							"        pm.expect(loan).to.have.property(\"appliedAt\");\r",
+							"    });\r",
+							"});\r",
+							"\r",
+							"// 6️⃣ Validate loan status values\r",
+							"pm.test(\"Loan status is valid\", function () {\r",
+							"    const allowedStatuses = [\r",
+							"        \"SUBMITTED\",\r",
+							"        \"APPROVED\",\r",
+							"        \"REJECTED\",\r",
+							"        \"DISBURSED\",\r",
+							"        \"CLOSED\"\r",
+							"    ];\r",
+							"\r",
+							"    response.forEach(loan => {\r",
+							"        pm.expect(allowedStatuses).to.include(loan.status);\r",
+							"    });\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJBa2Fua3NoeWEiLCJyb2xlcyI6WyJDVVNUT01FUiJdLCJpYXQiOjE3Njc2OTcyNTYsImV4cCI6MTc2NzcwMDg1Nn0.aakyzxJDt7EsDcWLVBkKNddPqxroYVUFMrbN_mHJTDs",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:9090/api/loans/me",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9090",
+					"path": [
+						"api",
+						"loans",
+						"me"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get my active loans",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// 1️⃣ Status code check\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"// 2️⃣ Response is JSON\r",
+							"pm.test(\"Response is JSON\", function () {\r",
+							"    pm.response.to.be.json;\r",
+							"});\r",
+							"\r",
+							"// Parse response\r",
+							"const response = pm.response.json();\r",
+							"\r",
+							"// 3️⃣ Response is an array\r",
+							"pm.test(\"Response is an array\", function () {\r",
+							"    pm.expect(response).to.be.an(\"array\");\r",
+							"});\r",
+							"\r",
+							"// 4️⃣ Validate structure if loans exist\r",
+							"pm.test(\"Active loans have required fields (if any)\", function () {\r",
+							"    response.forEach(loan => {\r",
+							"        pm.expect(loan).to.have.property(\"loanId\");\r",
+							"        pm.expect(loan).to.have.property(\"loanType\");\r",
+							"        pm.expect(loan).to.have.property(\"loanAmount\");\r",
+							"        pm.expect(loan).to.have.property(\"tenureMonths\");\r",
+							"        pm.expect(loan).to.have.property(\"status\");\r",
+							"        pm.expect(loan).to.have.property(\"startDate\");\r",
+							"    });\r",
+							"});\r",
+							"\r",
+							"// 5️⃣ Validate only ACTIVE loans are returned\r",
+							"pm.test(\"Only ACTIVE loans are returned\", function () {\r",
+							"    response.forEach(loan => {\r",
+							"        pm.expect(loan.status).to.eql(\"ACTIVE\");\r",
+							"    });\r",
+							"});\r",
+							"\r",
+							"// 6️⃣ Validate loan amount is positive\r",
+							"pm.test(\"Loan amount is positive\", function () {\r",
+							"    response.forEach(loan => {\r",
+							"        pm.expect(loan.loanAmount).to.be.a(\"number\");\r",
+							"        pm.expect(loan.loanAmount).to.be.greaterThan(0);\r",
+							"    });\r",
+							"});\r",
+							"\r",
+							"// 7️⃣ Validate tenure is positive\r",
+							"pm.test(\"Tenure is positive\", function () {\r",
+							"    response.forEach(loan => {\r",
+							"        pm.expect(loan.tenureMonths).to.be.a(\"number\");\r",
+							"        pm.expect(loan.tenureMonths).to.be.greaterThan(0);\r",
+							"    });\r",
+							"});\r",
+							"\r",
+							"// 8️⃣ Graceful empty-state check\r",
+							"pm.test(\"Empty response handled correctly\", function () {\r",
+							"    if (response.length === 0) {\r",
+							"        pm.expect(response).to.eql([]);\r",
+							"    }\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJBa2Fua3NoeWEiLCJyb2xlcyI6WyJDVVNUT01FUiJdLCJpYXQiOjE3Njc2OTk0MTQsImV4cCI6MTc2NzcwMzAxNH0.neSbFlOQulACCI0o94Urn1TtZcDhV5CR40LGfycoDS4",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:9090/api/loan-processing/my/active",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9090",
+					"path": [
+						"api",
+						"loan-processing",
+						"my",
+						"active"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get payment history by loan",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// 1️⃣ Status code check\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"// 2️⃣ Response is JSON\r",
+							"pm.test(\"Response is JSON\", function () {\r",
+							"    pm.response.to.be.json;\r",
+							"});\r",
+							"\r",
+							"// Parse response\r",
+							"const response = pm.response.json();\r",
+							"\r",
+							"// 3️⃣ Response is an array\r",
+							"pm.test(\"Response is an array\", function () {\r",
+							"    pm.expect(response).to.be.an(\"array\");\r",
+							"});\r",
+							"\r",
+							"// 4️⃣ Array is not empty\r",
+							"pm.test(\"Payment history is not empty\", function () {\r",
+							"    pm.expect(response.length).to.be.greaterThan(0);\r",
+							"});\r",
+							"\r",
+							"// 5️⃣ Validate structure of each payment\r",
+							"pm.test(\"Each payment has required fields\", function () {\r",
+							"    response.forEach(payment => {\r",
+							"        pm.expect(payment).to.have.property(\"paymentId\");\r",
+							"        pm.expect(payment).to.have.property(\"loanId\");\r",
+							"        pm.expect(payment).to.have.property(\"emiNumber\");\r",
+							"        pm.expect(payment).to.have.property(\"amount\");\r",
+							"        pm.expect(payment).to.have.property(\"status\");\r",
+							"        pm.expect(payment).to.have.property(\"createdAt\");\r",
+							"    });\r",
+							"});\r",
+							"\r",
+							"// 6️⃣ Validate payment status values\r",
+							"pm.test(\"Payment status is valid\", function () {\r",
+							"    const allowedStatuses = [\"PENDING\", \"SUCCESS\", \"FAILED\"];\r",
+							"\r",
+							"    response.forEach(payment => {\r",
+							"        pm.expect(allowedStatuses).to.include(payment.status);\r",
+							"    });\r",
+							"});\r",
+							"\r",
+							"// 7️⃣ Validate EMI number is positive\r",
+							"pm.test(\"EMI number is positive\", function () {\r",
+							"    response.forEach(payment => {\r",
+							"        pm.expect(payment.emiNumber).to.be.a(\"number\");\r",
+							"        pm.expect(payment.emiNumber).to.be.greaterThan(0);\r",
+							"    });\r",
+							"});\r",
+							"\r",
+							"// 8️⃣ Validate amount is positive\r",
+							"pm.test(\"Payment amount is positive\", function () {\r",
+							"    response.forEach(payment => {\r",
+							"        pm.expect(payment.amount).to.be.a(\"number\");\r",
+							"        pm.expect(payment.amount).to.be.greaterThan(0);\r",
+							"    });\r",
+							"});\r",
+							"\r",
+							"// 9️⃣ Validate payments belong to requested loanId\r",
+							"const requestLoanId = pm.request.url.toString().split(\"/\").pop();\r",
+							"\r",
+							"pm.test(\"Payments belong to the requested loan\", function () {\r",
+							"    response.forEach(payment => {\r",
+							"        pm.expect(payment.loanId).to.eql(requestLoanId);\r",
+							"    });\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJBa2Fua3NoeWEiLCJyb2xlcyI6WyJDVVNUT01FUiJdLCJpYXQiOjE3Njc2OTkwNjEsImV4cCI6MTc2NzcwMjY2MX0.lYXZsZUlKTWBZNlRY80O9dCh8Iw_GlA23eR5gt6iaWg",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:9090/api/payments/loan/695cebdf70a9ba1fc80c69cd",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9090",
+					"path": [
+						"api",
+						"payments",
+						"loan",
+						"695cebdf70a9ba1fc80c69cd"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get payment history by customer",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// 1️⃣ Status code check\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"// 2️⃣ Response is JSON\r",
+							"pm.test(\"Response is JSON\", function () {\r",
+							"    pm.response.to.be.json;\r",
+							"});\r",
+							"\r",
+							"// Parse response\r",
+							"const response = pm.response.json();\r",
+							"\r",
+							"// 3️⃣ Response is an array\r",
+							"pm.test(\"Response is an array\", function () {\r",
+							"    pm.expect(response).to.be.an(\"array\");\r",
+							"});\r",
+							"\r",
+							"// 4️⃣ Array is not empty\r",
+							"pm.test(\"Customer payment history is not empty\", function () {\r",
+							"    pm.expect(response.length).to.be.greaterThan(0);\r",
+							"});\r",
+							"\r",
+							"// 5️⃣ Validate structure of each payment\r",
+							"pm.test(\"Each payment has required fields\", function () {\r",
+							"    response.forEach(payment => {\r",
+							"        pm.expect(payment).to.have.property(\"paymentId\");\r",
+							"        pm.expect(payment).to.have.property(\"loanId\");\r",
+							"        pm.expect(payment).to.have.property(\"emiNumber\");\r",
+							"        pm.expect(payment).to.have.property(\"amount\");\r",
+							"        pm.expect(payment).to.have.property(\"status\");\r",
+							"        pm.expect(payment).to.have.property(\"createdAt\");\r",
+							"    });\r",
+							"});\r",
+							"\r",
+							"// 6️⃣ Validate payment status values\r",
+							"pm.test(\"Payment status is valid\", function () {\r",
+							"    const allowedStatuses = [\"PENDING\", \"SUCCESS\", \"FAILED\"];\r",
+							"\r",
+							"    response.forEach(payment => {\r",
+							"        pm.expect(allowedStatuses).to.include(payment.status);\r",
+							"    });\r",
+							"});\r",
+							"\r",
+							"// 7️⃣ Validate EMI number is positive\r",
+							"pm.test(\"EMI number is positive\", function () {\r",
+							"    response.forEach(payment => {\r",
+							"        pm.expect(payment.emiNumber).to.be.a(\"number\");\r",
+							"        pm.expect(payment.emiNumber).to.be.greaterThan(0);\r",
+							"    });\r",
+							"});\r",
+							"\r",
+							"// 8️⃣ Validate amount is positive\r",
+							"pm.test(\"Payment amount is positive\", function () {\r",
+							"    response.forEach(payment => {\r",
+							"        pm.expect(payment.amount).to.be.a(\"number\");\r",
+							"        pm.expect(payment.amount).to.be.greaterThan(0);\r",
+							"    });\r",
+							"});\r",
+							"\r",
+							"// 9️⃣ Validate payments belong to requested customer\r",
+							"const requestCustomerId = pm.request.url.toString().split(\"/\").pop();\r",
+							"\r",
+							"pm.test(\"Payments belong to the requested customer\", function () {\r",
+							"    response.forEach(payment => {\r",
+							"        pm.expect(payment.customerId || requestCustomerId).to.eql(requestCustomerId);\r",
+							"    });\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": " Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJBa2Fua3NoeWEiLCJyb2xlcyI6WyJDVVNUT01FUiJdLCJpYXQiOjE3Njc2OTkwNjEsImV4cCI6MTc2NzcwMjY2MX0.lYXZsZUlKTWBZNlRY80O9dCh8Iw_GlA23eR5gt6iaWg",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:9090/api/payments/customer/695cdbc43b25613e7c1bdd5e",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9090",
+					"path": [
+						"api",
+						"payments",
+						"customer",
+						"695cdbc43b25613e7c1bdd5e"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
