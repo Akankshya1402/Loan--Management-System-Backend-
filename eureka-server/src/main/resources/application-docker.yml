@@ -1,5 +1,5 @@
 server:
-  port: 8761
+  port: 8080
   address: 0.0.0.0
 
 spring:
@@ -7,11 +7,11 @@ spring:
     name: eureka-server
 
   config:
-    import: optional:configserver:http://config-server:8888
+    import: optional:configserver:http://config-server:8080
 
   cloud:
     config:
-      fail-fast: false   # 🔑 IMPORTANT
+      fail-fast: false
 
 eureka:
   client:
@@ -23,3 +23,4 @@ management:
     web:
       exposure:
         include: health,info
+

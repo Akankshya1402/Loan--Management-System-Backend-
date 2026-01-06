@@ -1,18 +1,24 @@
 server:
-  port: 8081
+  port: 0
 
 spring:
   application:
     name: auth-service
 
+  config:
+    import: optional:configserver:http://config-server:8080
+
   data:
     mongodb:
       uri: mongodb://mongo:27017/auth_db
 
+  kafka:
+    bootstrap-servers: kafka:9092
+
 eureka:
   client:
     service-url:
-      defaultZone: http://eureka-server:8761/eureka
+      defaultZone: http://eureka-server:8761/eureka/
     register-with-eureka: true
     fetch-registry: true
 

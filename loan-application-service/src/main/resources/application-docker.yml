@@ -16,7 +16,7 @@ spring:
           secret-key: THIS_IS_A_VERY_SECURE_SECRET_KEY_FOR_LMS_AUTH_SERVICE_256_BITS
 
   config:
-    import: optional:configserver:http://config-server:8888
+    import: optional:configserver:http://config-server:8080
 
 server:
   port: 0
@@ -24,6 +24,7 @@ server:
 eureka:
   client:
     service-url:
-      defaultZone: http://eureka-server:8761/eureka
+      defaultZone: http://eureka-server:8761/eureka/
     register-with-eureka: true
     fetch-registry: true
+

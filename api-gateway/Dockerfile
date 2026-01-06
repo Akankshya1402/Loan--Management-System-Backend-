@@ -2,8 +2,9 @@ FROM eclipse-temurin:17-jre
 
 WORKDIR /app
 
-COPY target/*.jar api-gateway.jar
+ARG JAR_FILE=target/*.jar
+COPY ${JAR_FILE} app.jar
 
-EXPOSE 9090
+EXPOSE 8080
 
-ENTRYPOINT ["java","-jar","api-gateway.jar"]
+ENTRYPOINT ["java","-jar","app.jar","--spring.profiles.active=docker"]
