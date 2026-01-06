@@ -1,0 +1,191 @@
+PS C:\Users\91889> npm install -g newman
+npm warn deprecated har-validator@5.1.5: this library is no longer supported
+npm warn deprecated uuid@3.4.0: Please upgrade  to version 7 or higher.  Older versions may use Math.random() in certain circumstances, which is known to be problematic.  See https://v8.dev/blog/math-random for details.
+npm warn deprecated @faker-js/faker@5.5.3: Please update to a newer version.
+
+added 120 packages in 27s
+PS C:\Users\91889> newman v
+error: invalid command `v`
+
+Usage: newman [options] [command]
+
+Options:
+  -v, --version               output the version number
+  -h, --help                  display help for command
+
+Commands:
+  run [options] <collection>  Initiate a Postman Collection run from a given URL or path
+
+To get available options for a command:
+  newman <command> -h
+PS C:\Users\91889> newman -v
+6.2.1
+PS C:\Users\91889> cd desktop
+PS C:\Users\91889\desktop> cd capstone
+PS C:\Users\91889\desktop\capstone> newman run loan-app-collection.json
+error: collection could not be loaded
+  unable to read data from file "loan-app-collection.json"
+  ENOENT: no such file or directory, open 'C:\Users\91889\desktop\capstone\loan-app-collection.json'
+
+PS C:\Users\91889\desktop\capstone> newman run loan-app.postman_collection.json
+error: collection could not be loaded
+  unable to read data from file "loan-app.postman_collection.json"
+  ENOENT: no such file or directory, open 'C:\Users\91889\desktop\capstone\loan-app.postman_collection.json'
+
+PS C:\Users\91889\desktop\capstone> cd samples
+PS C:\Users\91889\desktop\capstone\samples> newman run loan-app.postman_collection.json
+newman
+
+loan-app
+
+→ register new user
+  POST http://localhost:9090/api/auth/register [409 Conflict, 615B, 69ms]
+  1. Status code is 200
+  2. User registered successfully message
+
+→ login user
+  POST http://localhost:9090/api/auth/login [200 OK, 762B, 96ms]
+  √  Status code is 200
+  √  JWT token is present
+
+→ change password
+  POST http://localhost:9090/api/auth/forgot-password [200 OK, 629B, 126ms]
+  √  Status code is 200
+  √  Password change successful message
+
+→ create profile
+  POST http://localhost:9090/api/customers [401 Unauthorized, 337B, 10ms]
+  3. Status code is 201 or 200
+  4. Response is JSON
+  5. Customer profile created
+  6⠄ JSONError in test-script
+
+→ view profile
+  GET http://localhost:9090/api/customers/me [401 Unauthorized, 337B, 8ms]
+  7. Status code is 200
+  8. Response is JSON
+  9. Customer profile data is present
+ 10. Profile contains required fields
+
+→ upload kyc
+  POST http://localhost:9090/api/customers/me/kyc [401 Unauthorized, 337B, 8ms]
+ 11. Status code is 201
+ 12. KYC uploaded successfully
+
+→ get kyc
+  GET http://localhost:9090/api/customers/me/kyc [401 Unauthorized, 337B, 8ms]
+ 13. Status code is 200
+ 14. Response is JSON
+
+→ see kyc requests as admin
+  GET http://localhost:9090/api/admin/kyc [401 Unauthorized, 337B, 7ms]
+ 15. Status code is 200
+ 16. Response is an array
+ 17. KYC requests list is not empty
+ 18. KYC record contains required fields
+ 19⠄ JSONError in test-script
+
+→ approve kyc document
+  PUT http://localhost:9090/api/admin/kyc/695ce4d93b25613e7c1bdd62/approve [401 Unauthorized, 337B, 8ms]
+ 20. Status code is 200
+
+→ apply for loan
+  POST http://localhost:9090/api/loans [500 Internal Server Error, 624B, 92ms]
+ 21. Status code is 201 or 200
+  √  Response is JSON
+  √  Loan application created
+
+→ get my loan applications
+  GET http://localhost:9090/api/loans/me [200 OK, 702B, 40ms]
+  √  Status code is 200
+  √  Response is JSON
+  √  Response is an array
+  √  At least one loan application exists
+  √  Each loan has required fields
+  √  Loan status is valid
+
+→ get my active loans
+  GET http://localhost:9090/api/loan-processing/my/active [200 OK, 499B, 33ms]
+  √  Status code is 200
+  √  Response is JSON
+  √  Response is an array
+  √  Active loans have required fields (if any)
+  √  Only ACTIVE loans are returned
+  √  Loan amount is positive
+  √  Tenure is positive
+  √  Empty response handled correctly
+
+→ get payment history by loan
+  GET http://localhost:9090/api/payments/loan/695cebdf70a9ba1fc80c69cd [200 OK, 1.38kB, 23ms]
+  √  Status code is 200
+  √  Response is JSON
+  √  Response is an array
+  √  Payment history is not empty
+  √  Each payment has required fields
+  √  Payment status is valid
+  √  EMI number is positive
+  √  Payment amount is positive
+  √  Payments belong to the requested loan
+
+→ get payment history by customer
+  GET http://localhost:9090/api/payments/customer/695cdbc43b25613e7c1bdd5e [200 OK, 4.04kB, 16ms]
+  √  Status code is 200
+  √  Response is JSON
+  √  Response is an array
+  √  Customer payment history is not empty
+  √  Each payment has required fields
+  √  Payment status is valid
+  √  EMI number is positive
+  √  Payment amount is positive
+  √  Payments belong to the requested customer
+
+┌─────────────────────────┬───────────────────┬──────────────────┐
+│                         │          executed │           failed │
+├─────────────────────────┼───────────────────┼──────────────────┤
+│              iterations │                 1 │                0 │
+├─────────────────────────┼───────────────────┼──────────────────┤
+│                requests │                14 │                0 │
+├─────────────────────────┼───────────────────┼──────────────────┤
+│            test-scripts │                14 │                2 │
+├─────────────────────────┼───────────────────┼──────────────────┤
+│      prerequest-scripts │                 0 │                0 │
+├─────────────────────────┼───────────────────┼──────────────────┤
+│              assertions │                57 │               3  │
+├─────────────────────────┴───────────────────┴──────────────────┤
+│ total run duration: 1724ms                                     │
+├────────────────────────────────────────────────────────────────┤
+│ total data received: 4.98kB (approx)                           │
+├────────────────────────────────────────────────────────────────┤
+│ average response time: 38ms [min: 7ms, max: 126ms, s.d.: 38ms] │
+└────────────────────────────────────────────────────────────────┘
+
+   #  failure                detail
+
+ 01.  AssertionError         Status code is 200
+                             expected response to have status code 200 but got 409
+                             at assertion:0 in test-script
+                             inside "register new user"
+
+ 02.  JSONError              User registered successfully message
+                             Unexpected token 'U' at 1:1
+                             Username already exists
+                             ^
+                             at assertion:1 in test-script
+                             inside "register new user"
+
+ 03.  AssertionError         Status code is 201 or 200
+                             expected 401 to be one of [ 200, 201 ]
+                             at assertion:0 in test-script
+                             inside "create profile"
+
+ 04.  AssertionError         Response is JSON
+                             expected response body to be a valid json but got error No data, empty input at 1:1
+                             at assertion:1 in test-script
+                             inside "create profile"
+
+ 05.  JSONError              Customer profile created
+                             No data, empty input at 1:1
+                             ^
+                             at assertion:2 in test-script
+                             inside "create profile"
+

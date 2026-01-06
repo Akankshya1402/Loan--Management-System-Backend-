@@ -1,10 +1,7 @@
 Clear-Host
-Write-Host "🛑 Stopping Loan Management System Microservices..." -ForegroundColor Red
+Write-Host "🛑 Stopping Loan Management System..." -ForegroundColor Red
 
-# ======================================
-# LIST OF SERVICE JAR NAMES (MATCH EXACT)
-# ======================================
-$services = @(
+$jarNames = @(
     "config-server-1.0.0.jar",
     "eureka-server-1.0.0.jar",
     "auth-service-1.0.0.jar",
@@ -17,12 +14,10 @@ $services = @(
     "analytics-service-1.0.jar"
 )
 
-foreach ($jar in $services) {
-    Write-Host "Stopping $jar ..." -ForegroundColor Yellow
-
+foreach ($jar in $jarNames) {
     Get-Process java -ErrorAction SilentlyContinue |
         Where-Object { $_.Path -like "*$jar*" } |
         Stop-Process -Force
 }
 
-Write-Host "`n✅ ALL MICROSERVICES STOPPED SUCCESSFULLY" -ForegroundColor Green
+Write-Host "`n✅ ALL SERVICES STOPPED" -ForegroundColor Green
